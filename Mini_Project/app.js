@@ -78,7 +78,47 @@ app.get('/logout',(req,res)=>{
     res.cookie("token","")
     res.redirect("/login")
 })
+app.get('/like/:id', isLoggedIn, async (req, res) => {
+    try {
+        console.log("Received Post ID:", req.params.id);
 
+        let post = await postModel.findOne({ _id: req.params.id }).populate("user");
+
+        if (!post) {
+            return res.status(404).send("Post not found");
+        }
+
+        console.log("Post found:", post);
+        if (post.likes.indexOf(req.user.userid) === -1) {
+            post.likes.push(req.user.userid);
+        } else {
+            post.likes.splice(post.likes.indexOf(req.user.userid), 1);
+        }
+
+        await post.save();
+        res.redirect("/profile");
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+app.get('/edit/:id', isLoggedIn, async (req, res) => {
+    console.log("Received Post ID:", req.params.id);
+    let post = await postModel.findOne({ _id: req.params.id }).populate("user");
+
+    if (!post) {
+        return res.status(404).send("Post not found");
+    }
+    res.render("edit", { post, user: post.user });
+});
+
+
+app.post('/update/:id',isLoggedIn,async(req,res)=>{
+    let post=await postModel.findOneAndUpdate({_id: req.params.id },{content:req.body.content})
+    res.redirect("/profile")
+})
 
 // middle ware for checking if the user is logged in 
 function isLoggedIn(req, res, next) {
