@@ -21,7 +21,7 @@ app.post('/register',async (req,res)=>{
     let user=await userModel.findOne({email});
     if(user)return res.status(500).send("user already registered")
 
-
+    // hashing the password
     bcrypt.genSalt(10,(err,salt)=>{
     bcrypt.hash(password,salt,async (err,hash)=>{
       let user=  await userModel.create({
@@ -33,7 +33,7 @@ app.post('/register',async (req,res)=>{
         });
        let token=jwt.sign({email:email,userid:user._id},"shhh")
        res.cookie("token",token)
-       res.send("registered")
+       res.redirect("/login")
     })
 })
 });
@@ -45,7 +45,7 @@ app.get('/profile',isLoggedIn,async (req,res)=>{
     // console.log(name)
     res.render("profile",{user})
 })
-app.post('/login', async (req, res) => {
+app.post('/loggedIn', async (req, res) => {
     let { email, password } = req.body;
     let user = await userModel.findOne({ email });
     if (!user) return res.status(404).send("User not found");
