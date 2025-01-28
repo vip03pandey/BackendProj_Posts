@@ -13,7 +13,6 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
-const crypto=require('crypto')
 
 app.get('/', (req, res) => {
     res.render("index");
@@ -41,19 +40,7 @@ app.post('/register',async (req,res)=>{
 })
 });
 
-app.get("/profile/upload", (req, res) => {
-    res.render("profileupload");
-  });
-  
 
-//   from the form we took the post method , upload.singe(name of the value from where it is taken)
-  app.post("/upload", isLoggedIn,multerconfig.single("image"), async (req, res) => {
-      let user=  await userModel.findOne({email:req.user.email});
-       user.profilepic=req.file.filename;
-       await user.save()
-       res.redirect('/profile')
-  });
-  app
 app.get('/login',async (req,res)=>{
     res.render("login")
 });
@@ -75,7 +62,6 @@ app.post('/loggedIn', async (req, res) => {
             res.cookie("token", token);
             res.status(200).redirect("/profile");
         } else {
-            // Password mismatch
             res.status(401).send("Invalid password");
         }
     });
@@ -136,6 +122,19 @@ app.post('/update/:id',isLoggedIn,async(req,res)=>{
     let post=await postModel.findOneAndUpdate({_id: req.params.id },{content:req.body.content})
     res.redirect("/profile")
 })
+
+app.get("/profile/upload", (req, res) => {
+    res.render("profileupload");
+  });
+  
+
+//   from the form we took the post method , upload.singe(name of the value from where it is taken)
+  app.post("/upload", isLoggedIn,multerconfig.single("image"), async (req, res) => {
+      let user=  await userModel.findOne({email:req.user.email});
+       user.profilepic=req.file.filename;
+       await user.save()
+       res.redirect('/profile')
+  });
 
 // middle ware for checking if the user is logged in 
 function isLoggedIn(req, res, next) {

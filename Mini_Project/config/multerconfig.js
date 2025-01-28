@@ -5,7 +5,6 @@ const crypto = require('crypto');
 // Disk storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Fixed path: leading dot was incorrect
     cb(null, './public/images/uploads');
   },
   filename: function (req, file, cb) {
